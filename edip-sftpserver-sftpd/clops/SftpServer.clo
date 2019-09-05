@@ -1,0 +1,32 @@
+NAME:: SftpServer
+ARGS::
+  Port
+    :{"-p", "--Port" } :{int}
+    :[minvalue="1025",maxvalue="65535",default="2222"]
+    :"set server port, default port is 2222."
+  RootDir
+    :{"-d", "--RootDir"} :{file}
+    :[default="./"]
+    :"the root directory set default root directory is ./"
+  Help
+    :{"-h", "--help"}
+    :[allowArg="true",default="false"]
+    :"Displays this message."
+  ServerName
+    :{"-n", "--ServerName"} :{string}
+    :"The instance server name."
+  SecurityKey
+    :{"-k", "--SecurityKey"} :{string}
+    :"The security key for check"
+  Ver
+    :{"--version"}
+//FORMAT:: (Port | RootDir)* | Help;
+
+FORMAT::
+
+       (option)*;  // this is a regular expression
+
+WHERE::
+
+       option:   // shorthand to make the FORMAT easier to read
+                Port | RootDir | Help | Ver | ServerName | SecurityKey;

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="clops-0.3-runtime">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/edip-sftpserver-sftpd/lib/clops-0.3-runtime.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

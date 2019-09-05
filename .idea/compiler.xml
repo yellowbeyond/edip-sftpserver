@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="edip-sftpserver-sftpd" />
+        <module name="edip-sftpserver-core" />
+        <module name="edip-rest-client" />
+        <module name="edip-rest-server" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="edip-rest-client" options="" />
+      <module name="edip-rest-server" options="" />
+      <module name="edip-sftpserver" options="-parameters" />
+      <module name="edip-sftpserver-sftpd" options="" />
+    </option>
+  </component>
+</project>
