@@ -40,6 +40,7 @@ public class ForkSftpServer implements JavaFork {
 
             p = pb.start();
 
+
             pi=new ProcessInfo(p);
 
 
@@ -64,7 +65,7 @@ public class ForkSftpServer implements JavaFork {
                 }
             }
 
-            if(errout.ready()) {
+           if(errout.ready()) {
                 errline = errout.readLine();
                 if(errline!=null){
                     System.out.println(errline);

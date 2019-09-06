@@ -41,6 +41,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -98,21 +100,27 @@ public class SftpServer implements PasswordAuthenticator {
                 sr.getOptionStore();
         if (opt.getHelp())
             parser.printUsage(System.err);
-        if (opt.getPort() > 1024) {
+        if (opt.isPortSet() && opt.getPort() > 1024) {
             SftpServer.getServer().setPort(opt.getPort());
 
         }
-        if (opt.getServerName()!=null) {
+        if (opt.isServerNameSet()&&opt.getServerName()!=null) {
 
             SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_NANME,opt.getServerName());
 
         }
-        if (opt.getSecurityKey()!=null) {
+        if (opt.isSecurityKeySet() && opt.getSecurityKey()!=null) {
 
             SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_SECURITY_KEY,opt.getSecurityKey());
 
         }
-        if (opt.getRootDir()!=null & opt.getRootDir().isDirectory()){
+
+        int pid=getProcessID();
+        if(pid>0){
+            SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_PID,String.valueOf(pid));
+        }
+
+        if (opt.isRootDirSet() && opt.getRootDir()!=null && opt.getRootDir().isDirectory()){
             //System.out.println(opt.getRootDir().toString());
             SftpServer.getServer().setRootDir(opt.getRootDir().toString());
         }else{
@@ -165,6 +173,7 @@ public class SftpServer implements PasswordAuthenticator {
             setupDummyShell(enableDummyShell);
             //loadHtPasswd();
             sshd.setPort(this.getPort());
+
             LOG.info("Listen on port=" + port);
 
             //final Server thisServer = this;
@@ -174,15 +183,11 @@ public class SftpServer implements PasswordAuthenticator {
                 }
             });
 
-
-
-
-            System.out.println("[SftpServer Return Info]:"+ JSONObject.toJSONString(returnM));
             sshd.start();
 
+            System.out.println("[SftpServer Return Info]:"+ JSONObject.toJSONString(returnM));
 
-
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOG.error("Exception " + e.toString(), e);
         }
         while (running) {
@@ -348,9 +353,17 @@ public class SftpServer implements PasswordAuthenticator {
     }
 
 
-    static class ReturnInfoConstant{
+    public static class ReturnInfoConstant{
         public static String SFTPD_SERVER_NANME="server-name";
         public static String SFTPD_SERVER_SECURITY_KEY="security-key";
+        public static String SFTPD_SERVER_PID="pid";
 
+    }
+
+    public static final int getProcessID() {
+        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        System.out.println(runtimeMXBean.getName());
+        return Integer.valueOf(runtimeMXBean.getName().split("@")[0])
+                .intValue();
     }
 }
