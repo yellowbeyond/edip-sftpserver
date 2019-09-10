@@ -70,7 +70,7 @@ abstract class AbstractReceiver[T] extends Receiver[T]{
    * @return The String create from {@content contetn } by { @charset charset}
    */
   def byte2String(bf:ByteBuf,marshaller:NettyContentMarshallers,charset:Charset):String = {
-    if(charset!= None & bf != None){
+    if(charset!= null & bf != null){
       return marshaller.read(new String().getClass,null)
     }
 
@@ -85,7 +85,7 @@ abstract class AbstractReceiver[T] extends Receiver[T]{
    * @return The String create from {@content contetn } by { @charset charset}
    */
   def byte2Map(bf:ByteBuf,marshaller:NettyContentMarshallers): Map[String,Any] = {
-    if (bf != None) {
+    if (bf != null) {
 
         return marshaller.read(Map.getClass,bf,null).asInstanceOf[Map[String,Any]]
 

@@ -28,6 +28,9 @@ public class EdipSftpserverApplication {
         _args.put("-n", "server-1");
         String uuid = UUID.randomUUID().toString();
         _args.put("-k", uuid);
+        _args.put("-r","http://localhost:8081/info/register-server");
+
+        //_args.put("-Dlog4j.configuration=file:src/main/resources/log4j.properties"," ");
 
 
         HashMap<String, String> env = new HashMap<String, String>();
@@ -37,7 +40,9 @@ public class EdipSftpserverApplication {
 			/*if(){
 
 			}
+
 */
+			LOG.debug(pi.getReturnInfo().toString());
             SftpServerContext.getInstance().registerServer(uuid + "-" +pi.getReturnInfo().get(SftpServer.ReturnInfoConstant.SFTPD_SERVER_PID).toString(), pi);
             //System.out.println("ddddd");
 

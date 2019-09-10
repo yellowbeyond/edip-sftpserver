@@ -94,6 +94,23 @@ public interface SftpServerOptionsInterface {
   String getSecurityKey();
   
 
+// Option RegisterServerPath. 
+// Aliases: [-r, --RegisterServer]
+
+  /**
+   * @return true if the option RegisterServerPath has been used
+   * in the command line.
+   */
+  boolean isRegisterServerPathSet();
+
+  /**
+   * Get the value of {@code Option} RegisterServerPath.
+   * @return the value of the option RegisterServerPath if it has been set
+   * using the arguments. Throws an {@code IllegalStateException} otherwise.
+   */ 
+  String getRegisterServerPath();
+  
+
 // Option Ver. 
 // Aliases: [--version]
 

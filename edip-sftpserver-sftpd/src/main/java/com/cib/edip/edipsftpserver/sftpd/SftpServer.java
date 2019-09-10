@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.cib.edip.edipsftpserver.clops.SftpServerOptionsInterface;
 import com.cib.edip.edipsftpserver.clops.SftpServerParseResult;
 import com.cib.edip.edipsftpserver.clops.SftpServerParser;
+import com.cib.edip.edipsftpserver.rest.RestResponseHandler;
+import com.cib.edip.edipsftpserver.utils.Helpers;
 import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.channel.Channel;
 import org.apache.sshd.common.compression.BuiltinCompressions;
@@ -13,26 +15,18 @@ import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.common.mac.BuiltinMacs;
 import org.apache.sshd.common.mac.Mac;
 import org.apache.sshd.common.session.Session;
-import org.apache.sshd.common.util.GenericUtils;
-import org.apache.sshd.common.util.ValidateUtils;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
-import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.channel.ChannelSessionFactory;
 import org.apache.sshd.server.command.Command;
-import org.apache.sshd.server.command.CommandFactory;
 import org.apache.sshd.server.keyprovider.AbstractGeneratorHostKeyProvider;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
-import org.apache.sshd.server.shell.ProcessShellFactory;
 import org.apache.sshd.server.shell.ShellFactory;
-import org.apache.sshd.server.subsystem.sftp.SftpEventListener;
-import org.apache.sshd.server.subsystem.sftp.SftpSubsystem;
-import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.sshd.server.SshServer;
@@ -43,14 +37,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.nio.file.LinkOption;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.PublicKey;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import com.cib.edip.client.RestClient;
 
 
 public class SftpServer implements PasswordAuthenticator {
@@ -86,6 +79,44 @@ public class SftpServer implements PasswordAuthenticator {
 
     private Map<String,Object> returnM =new HashMap<String,Object>();
 
+    public Map<String, Object> getReturnM() {
+        return returnM;
+    }
+
+    public void setReturnM(Map<String, Object> returnM) {
+        this.returnM = returnM;
+    }
+
+    private String RegisterServerPath;
+
+    public int getRegisterStatus() {
+        return RegisterStatus;
+    }
+
+    public void setRegisterStatus(int registerStatus) {
+        RegisterStatus = registerStatus;
+    }
+
+    private int RegisterStatus;
+
+    private String ServerToken;
+
+    public String getServerToken() {
+        return ServerToken;
+    }
+
+    public void setServerToken(String serverToken) {
+        ServerToken = serverToken;
+    }
+
+    public String getRegisterServerPath() {
+        return RegisterServerPath;
+    }
+
+    public void setRegisterServerPath(String registerServerPath) {
+        RegisterServerPath = registerServerPath;
+    }
+
     public static void main(String[] args) {
 
         //SftpServerParseResult sr = SftpServerParser.parse(args,"SftpServer");
@@ -102,6 +133,7 @@ public class SftpServer implements PasswordAuthenticator {
             parser.printUsage(System.err);
         if (opt.isPortSet() && opt.getPort() > 1024) {
             SftpServer.getServer().setPort(opt.getPort());
+            SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_PORT,opt.getPort());
 
         }
         if (opt.isServerNameSet()&&opt.getServerName()!=null) {
@@ -123,10 +155,20 @@ public class SftpServer implements PasswordAuthenticator {
         if (opt.isRootDirSet() && opt.getRootDir()!=null && opt.getRootDir().isDirectory()){
             //System.out.println(opt.getRootDir().toString());
             SftpServer.getServer().setRootDir(opt.getRootDir().toString());
+            SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_ROOT_DIR,opt.getRootDir());
         }else{
             LOG.error("RooDir option isn't set or not a directory ");
             //System.err.println("RooDir option isn't set or not a directory ");
         }
+
+        if(opt.isRegisterServerPathSet() && opt.getRegisterServerPath()!=null ){
+            LOG.debug("RegisterServerPath:"+opt.getRegisterServerPath());
+
+            SftpServer.getServer().setRegisterServerPath(opt.getRegisterServerPath());
+
+        }
+
+        SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTP_REGISTER_STATUS,ReturnInfoConstant.SFTP_REGISTER_STATUS_UNREGISTERED);
 
 
         SftpServer.getServer().start();
@@ -187,8 +229,13 @@ public class SftpServer implements PasswordAuthenticator {
 
             System.out.println("[SftpServer Return Info]:"+ JSONObject.toJSONString(returnM));
 
-        } catch (IOException e) {
+            Thread.sleep(5);
+
+            registerServer();
+
+        } catch (Exception e) {
             LOG.error("Exception " + e.toString(), e);
+            e.printStackTrace();
         }
         while (running) {
             try {
@@ -352,18 +399,76 @@ public class SftpServer implements PasswordAuthenticator {
         this.returnM.put(key,value);
     }
 
+    public void registerServer(){
+
+
+        if(this.getRegisterServerPath()!=null ){
+
+           // String serverPaht="http://"+
+
+                Map<String,Object> body=new HashMap(SftpServer.getServer().getReturnM());
+
+              /*
+               * body.put() //use for add new post arg
+               */
+
+            LOG.debug("-------------------------------------------------------------------1"
+                    + SftpServer.getServer().getRegisterServerPath() + "=========" + body.toString());
+
+                RestClient.doPost(SftpServer.getServer().getRegisterServerPath(),body, new RestResponseHandler<Map>(Map.class){
+
+                    @Override
+                    public <A> void handleByMap(Map<A, ?> obj) {
+
+                        LOG.debug("SftpSever ReturnM1:"+obj);
+
+
+
+                        if(Helpers.checkNotNullAndEmpty(obj)
+                                & ((Integer)obj.get((A)ReturnInfoConstant.SERVER_REGISTER_RESPONSE_STATUS)).equals(Integer.valueOf(ReturnInfoConstant.SERVER_REGISTER_RESPONSE_STATUS_SUCCESS))
+                                & obj.get((A)ReturnInfoConstant.SFTPD_SERVER_NANME).toString().equals(SftpServer.getServer().getReturnM().get(ReturnInfoConstant.SFTPD_SERVER_NANME).toString())
+                                & obj.get((A)ReturnInfoConstant.SFTPD_SERVER_SECURITY_KEY).toString().equals(SftpServer.getServer().getReturnM().get(ReturnInfoConstant.SFTPD_SERVER_SECURITY_KEY).toString())){
+                            if(obj.containsKey((A)ReturnInfoConstant.SFTPD_SERVER_TOKEN)){
+                                //ReturnInfoConstant.SFTPD_SERVER_TOKEN=obj.get(ReturnInfoConstant.SFTPD_SERVER_TOKEN).toString();
+                                SftpServer.getServer().getReturnM().put(ReturnInfoConstant.SFTPD_SERVER_TOKEN,obj.get((A)ReturnInfoConstant.SFTPD_SERVER_TOKEN).toString());
+
+                                LOG.debug("SftpSever ReturnM:"+SftpServer.getServer().getReturnM().toString());
+
+                            }
+                        }
+                    }
+                }, null);
+        }
+
+    }
+
 
     public static class ReturnInfoConstant{
         public static String SFTPD_SERVER_NANME="server-name";
         public static String SFTPD_SERVER_SECURITY_KEY="security-key";
         public static String SFTPD_SERVER_PID="pid";
+        public static String SFTPD_SERVER_ROOT_DIR="root-dir";
+        public static String SFTPD_SERVER_PORT="server-port";
+        public static String SFTPD_SERVER_TOKEN="sftp-server-token";
+
+        public static String SFTP_REGISTER_STATUS="register-status";
+        public static int SFTP_REGISTER_STATUS_REGISTERED=0X0001;
+        public static int SFTP_REGISTER_STATUS_UNREGISTERED=0X0002;
+
+        public static String SERVER_REGISTER_RESPONSE_STATUS="response-status";
+
+        public static int SERVER_REGISTER_RESPONSE_STATUS_SUCCESS=0x0001;
+        public static int SERVER_REGISTER_RESPONSE_STATUS_FAILURE=0x0101;
 
     }
 
     public static final int getProcessID() {
         RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-        System.out.println(runtimeMXBean.getName());
+        //System.out.println(runtimeMXBean.getName());
         return Integer.valueOf(runtimeMXBean.getName().split("@")[0])
                 .intValue();
     }
+
+
+
 }

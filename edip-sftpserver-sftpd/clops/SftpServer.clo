@@ -14,10 +14,14 @@ ARGS::
     :"Displays this message."
   ServerName
     :{"-n", "--ServerName"} :{string}
+    :[default="SftpSever-default"]
     :"The instance server name."
   SecurityKey
     :{"-k", "--SecurityKey"} :{string}
     :"The security key for check"
+  RegisterServerPath
+      :{"-r", "--RegisterServer"} :{string}
+      :"Register Server with rest request by the path"
   Ver
     :{"--version"}
 //FORMAT:: (Port | RootDir)* | Help;
@@ -29,4 +33,4 @@ FORMAT::
 WHERE::
 
        option:   // shorthand to make the FORMAT easier to read
-                Port | RootDir | Help | Ver | ServerName | SecurityKey;
+                Port | RootDir | Help | Ver | ServerName | SecurityKey |RegisterServerPath;

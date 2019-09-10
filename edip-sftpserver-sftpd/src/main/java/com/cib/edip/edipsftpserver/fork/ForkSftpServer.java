@@ -3,6 +3,9 @@ package com.cib.edip.edipsftpserver.fork;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.cib.edip.edipsftpserver.sftpd.SftpServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -11,6 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ForkSftpServer implements JavaFork {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ForkSftpServer.class);
 
 
     @Override
@@ -30,6 +35,8 @@ public class ForkSftpServer implements JavaFork {
                 pb.command().add("-cp");
                 pb.command().add(cp);
             }
+
+            pb.command().add("-Dlog4j.configuration=file:///vagrant/workspace/project/test_kfk/edip-sftpserver/edip-rest-server/src/main/resources/log4j-sftpd.properties");
             pb.command().add(mainClass.getName());
 
            // pb.command().add("-Dlog4j.configuration=file://src/main/resources/log4j.properties");
@@ -52,7 +59,7 @@ public class ForkSftpServer implements JavaFork {
 
             while((line = stdout.readLine())!=null) {
                 if (line != null) {
-                    System.out.println(line);
+                    LOG.info(line);
                     Matcher matcher=Pattern.compile("\\[SftpServer\\sReturn\\sInfo\\]\\:(\\{.*\\})").matcher(line);
 
                     if(matcher.find()){
@@ -68,7 +75,7 @@ public class ForkSftpServer implements JavaFork {
            if(errout.ready()) {
                 errline = errout.readLine();
                 if(errline!=null){
-                    System.out.println(errline);
+                    LOG.error(errline);
                 }
             }
 

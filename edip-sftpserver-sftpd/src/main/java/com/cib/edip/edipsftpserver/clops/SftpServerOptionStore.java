@@ -17,6 +17,7 @@ public class SftpServerOptionStore extends OptionStore implements SftpServerOpti
   private final BooleanOption ogHelp;
   private final StringOption ogServerName;
   private final StringOption ogSecurityKey;
+  private final StringOption ogRegisterServerPath;
   private final BooleanOption ogVer;
   private final CLOPSErrorOption CLOPSERROROPTION;
 
@@ -43,12 +44,17 @@ public class SftpServerOptionStore extends OptionStore implements SftpServerOpti
     ogHelp.setProperty("description", "Displays this message.");
     ogServerName = new StringOption("ServerName", "(?:-n)|(?:--ServerName)");
     addOption(ogServerName);
+    ogServerName.setProperty("default", "SftpSever-default");
     ogServerName.setProperty("aliases", "-n,--ServerName");
     ogServerName.setProperty("description", "The instance server name.");
     ogSecurityKey = new StringOption("SecurityKey", "(?:-k)|(?:--SecurityKey)");
     addOption(ogSecurityKey);
     ogSecurityKey.setProperty("aliases", "-k,--SecurityKey");
     ogSecurityKey.setProperty("description", "The security key for check");
+    ogRegisterServerPath = new StringOption("RegisterServerPath", "(?:-r)|(?:--RegisterServer)");
+    addOption(ogRegisterServerPath);
+    ogRegisterServerPath.setProperty("aliases", "-r,--RegisterServer");
+    ogRegisterServerPath.setProperty("description", "Register Server with rest request by the path");
     ogVer = new BooleanOption("Ver", "(?:--version)");
     addOption(ogVer);
     ogVer.setProperty("aliases", "--version");
@@ -63,18 +69,20 @@ public class SftpServerOptionStore extends OptionStore implements SftpServerOpti
     addOptionGroup(ogAllOptions);
     
     //Setup groupings
-    ogoption.addOptionOrGroup(ogRootDir);
     ogoption.addOptionOrGroup(ogSecurityKey);
+    ogoption.addOptionOrGroup(ogRootDir);
     ogoption.addOptionOrGroup(ogVer);
     ogoption.addOptionOrGroup(ogHelp);
-    ogoption.addOptionOrGroup(ogServerName);
     ogoption.addOptionOrGroup(ogPort);
+    ogoption.addOptionOrGroup(ogServerName);
+    ogoption.addOptionOrGroup(ogRegisterServerPath);
     //AllOptions group
     ogAllOptions.addOptionOrGroup(ogPort);
     ogAllOptions.addOptionOrGroup(ogRootDir);
     ogAllOptions.addOptionOrGroup(ogHelp);
     ogAllOptions.addOptionOrGroup(ogServerName);
     ogAllOptions.addOptionOrGroup(ogSecurityKey);
+    ogAllOptions.addOptionOrGroup(ogRegisterServerPath);
     ogAllOptions.addOptionOrGroup(ogVer);
   }
   
@@ -206,6 +214,32 @@ public class SftpServerOptionStore extends OptionStore implements SftpServerOpti
   
   public StringOption getSecurityKeyOption() {
     return ogSecurityKey;
+  }
+  
+// Option RegisterServerPath.
+// Aliases: [-r, --RegisterServer]
+  
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isRegisterServerPathSet() {
+    return ogRegisterServerPath.hasValue();
+  }
+  
+  /** {@inheritDoc} */
+  public String getRegisterServerPath() {
+    return ogRegisterServerPath.getValue();
+  }
+
+  /** Gets the value of option RegisterServerPath without checking if it is set.
+   *  This method will not throw an exception, but may return null. 
+   */
+  public String getRawRegisterServerPath() {
+    return ogRegisterServerPath.getRawValue();
+  }
+  
+  public StringOption getRegisterServerPathOption() {
+    return ogRegisterServerPath;
   }
   
 // Option Ver.

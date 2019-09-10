@@ -19,6 +19,14 @@
         <out.lib>${project.build.directory}/lib</out.lib>
     </properties>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>scala-tools.org</id>
+            <name>Scala-Tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencies>
         <dependency>
             <groupId>com.cib.edip</groupId>
@@ -26,10 +34,16 @@
             <version>${sftpserver.vesion}</version>
         </dependency>
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.58</version>
+            <groupId>com.cib.edip</groupId>
+            <artifactId>edip-rest-client</artifactId>
+            <version>${sftpserver.vesion}</version>
         </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
@@ -108,6 +122,28 @@
 
     <build>
         <plugins>
+            <plugin>
+            <groupId>org.scala-tools</groupId>
+            <artifactId>maven-scala-plugin</artifactId>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>compile</goal>
+                        <goal>testCompile</goal>
+                    </goals>
+                    <configuration>
+                        <scalaVersion>${scala.version}</scalaVersion>
+                        <args>
+                            <arg>-target:jvm-1.8</arg>
+                        </args>
+                        <includes>
+                            <include>**/*.scala/</include>
+                        </includes>
+                    </configuration>
+                </execution>
+            </executions>
+
+        </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -140,9 +176,9 @@
                 <source>1.8</source>
                 <target>1.8</target>
                 <encoding>UTF-8</encoding>
-                <!--compilerArguments>
+                <!-- compilerArguments>
                     <extdirs>/lib</extdirs>
-                </compilerArguments-->
+                </compilerArguments -->
             </configuration>
             </plugin>
             <plugin>
@@ -281,5 +317,19 @@
 
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </reporting>
+
 
 </project>

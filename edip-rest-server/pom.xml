@@ -33,6 +33,11 @@
             <artifactId>edip-sftpserver-sftpd</artifactId>
             <version>${sftpserver.vesion}</version>
         </dependency>
+        <dependency>
+            <groupId>com.cib.edip</groupId>
+            <artifactId>edip-rest-client</artifactId>
+            <version>${sftpserver.vesion}</version>
+        </dependency>
     </dependencies>
 
 
@@ -43,6 +48,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>com.cib.edip.edipsftpserver.EdipSftpserverApplication</mainClass>
+
                 </configuration>
             </plugin>
             <plugin>

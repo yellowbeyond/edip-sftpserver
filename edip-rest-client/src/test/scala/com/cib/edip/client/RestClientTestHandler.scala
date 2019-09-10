@@ -1,11 +1,17 @@
 package com.cib.edip.client
 
+import java.util
+
 import io.netty.handler.codec.http.{HttpHeaders, HttpResponseStatus}
 
 
 class RestClientTestHandler[T](override val `type`: Class[T]) extends AbstractRestResponseHandler[T](`type`) {
 
   //private val contentMarshallers: NettyContentMarshallers = new NettyContentMarshallers().withStrings()
+
+  override def handleByMap[A](obj: util.Map[A, _]): Unit = {
+
+  }
 
   private val sb:StringBuffer=new StringBuffer()
 
