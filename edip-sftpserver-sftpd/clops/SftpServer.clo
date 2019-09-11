@@ -19,9 +19,17 @@ ARGS::
   SecurityKey
     :{"-k", "--SecurityKey"} :{string}
     :"The security key for check"
-  RegisterServerPath
-      :{"-r", "--RegisterServer"} :{string}
-      :"Register Server with rest request by the path"
+  RegisterServerURL
+      :{"-url", "--RegisterServerURL"} :{string}
+      :"Register Server with rest request by the URL"
+  ConfigFile
+      :{"-f", "--ConfigFile"} :{string-regexp}
+      :[regexp=".*\\.yaml"]
+      :"the YAML config file path"
+  RegisterServer
+      :{"-r", "--RegisterServer"} :{boolean}
+      :[default="false", allowarg="false"]
+      :"if register information to the agent center"
   Ver
     :{"--version"}
 //FORMAT:: (Port | RootDir)* | Help;
@@ -33,4 +41,7 @@ FORMAT::
 WHERE::
 
        option:   // shorthand to make the FORMAT easier to read
-                Port | RootDir | Help | Ver | ServerName | SecurityKey |RegisterServerPath;
+                Port | RootDir | Help | Ver | ServerName | SecurityKey | RegisterServerPath | ConfigFile | RegisterServer;
+VALIDITY::
+        {$(RegisterServer?) || $(RegisterServerURL?)}:
+        "-r and -url must display at the same time";

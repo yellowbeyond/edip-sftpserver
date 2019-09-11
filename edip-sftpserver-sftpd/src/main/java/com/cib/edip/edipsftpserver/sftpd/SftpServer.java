@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.cib.edip.edipsftpserver.clops.SftpServerOptionsInterface;
 import com.cib.edip.edipsftpserver.clops.SftpServerParseResult;
 import com.cib.edip.edipsftpserver.clops.SftpServerParser;
+import com.cib.edip.edipsftpserver.configs.ConfigParseYAML;
 import com.cib.edip.edipsftpserver.rest.RestResponseHandler;
+import com.cib.edip.edipsftpserver.sftpd.config.Sftpd;
 import com.cib.edip.edipsftpserver.utils.Helpers;
 import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.channel.Channel;
@@ -120,6 +122,8 @@ public class SftpServer implements PasswordAuthenticator {
     public static void main(String[] args) {
 
         //SftpServerParseResult sr = SftpServerParser.parse(args,"SftpServer");
+
+
         SftpServerParser parser = new SftpServerParser();
         //ParseResult parseResult = parser.parseInternal(args, "SftpServer");
         SftpServerParseResult sr = new SftpServerParseResult(parser.parseInternal(args, "SftpServer"), parser.getOptionStore());
@@ -161,10 +165,10 @@ public class SftpServer implements PasswordAuthenticator {
             //System.err.println("RooDir option isn't set or not a directory ");
         }
 
-        if(opt.isRegisterServerPathSet() && opt.getRegisterServerPath()!=null ){
-            LOG.debug("RegisterServerPath:"+opt.getRegisterServerPath());
+        if(opt.isRegisterServerURLSet() && opt.getRegisterServerURL()!=null ){
+            LOG.debug("RegisterServerPath:"+opt.getRegisterServerURL());
 
-            SftpServer.getServer().setRegisterServerPath(opt.getRegisterServerPath());
+            SftpServer.getServer().setRegisterServerPath(opt.getRegisterServerURL());
 
         }
 

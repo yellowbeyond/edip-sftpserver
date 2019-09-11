@@ -1,0 +1,4 @@
+port: 2007
+rootDir: /tmp
+serverName: sftp-server
+registerServerPath: http://localhost:8081/info/register-server
