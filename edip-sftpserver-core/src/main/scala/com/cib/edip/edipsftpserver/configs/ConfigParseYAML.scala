@@ -9,6 +9,8 @@ import org.yaml.snakeyaml.constructor.Constructor
 
 object ConfigParseYAML{
 
+
+  @throws[FileNotFoundException]
   def loadConfig[T](fileName:String,_class:Class[T]):Option[T]= {
 
     if (Helpers.checkNotNull(fileName)) {
@@ -18,10 +20,14 @@ object ConfigParseYAML{
       if (url != null) {
         //val _class=classOf[T]
         val obj:T = yaml.load(new FileInputStream(url.getFile))
-        if(Helpers.checkNotNull(obj)) return Some(obj)
+        if(Helpers.checkNotNull(obj)){ return Some(obj)}else
+        {throw new FileNotFoundException("can not load yaml config file:"+fileName)}
 
       }else{
-        throw new FileNotFoundException("can not load yaml config file:"+fileName)
+        val obj:T = yaml.load(new FileInputStream(fileName))
+        if(Helpers.checkNotNull(obj)){ return Some(obj)}else
+        {throw new FileNotFoundException("can not load yaml config file:"+fileName)}
+
       }
 
     }

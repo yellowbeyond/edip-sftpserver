@@ -33,10 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.sshd.server.SshServer;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.URL;
@@ -60,6 +57,22 @@ public class SftpServer implements PasswordAuthenticator {
     public static final String HOSTKEY_FILE_SER = "keys/hostkey.ser";
 
     private int port;
+    private Sftpd sftpdConfig;
+    private String rootDir;
+    private String RegisterServerPath;
+    private Map<String,Object> returnM =new HashMap<String,Object>();
+    private int RegisterStatus;
+    private String ServerToken;
+    private String ServerName;
+
+
+    public String getServerName() {
+        return ServerName;
+    }
+
+    public void setServerName(String serverName) {
+        ServerName = serverName;
+    }
 
     public int getPort() {
         return port;
@@ -77,10 +90,6 @@ public class SftpServer implements PasswordAuthenticator {
         this.rootDir = rootDir;
     }
 
-    private String rootDir;
-
-    private Map<String,Object> returnM =new HashMap<String,Object>();
-
     public Map<String, Object> getReturnM() {
         return returnM;
     }
@@ -89,8 +98,6 @@ public class SftpServer implements PasswordAuthenticator {
         this.returnM = returnM;
     }
 
-    private String RegisterServerPath;
-
     public int getRegisterStatus() {
         return RegisterStatus;
     }
@@ -98,10 +105,6 @@ public class SftpServer implements PasswordAuthenticator {
     public void setRegisterStatus(int registerStatus) {
         RegisterStatus = registerStatus;
     }
-
-    private int RegisterStatus;
-
-    private String ServerToken;
 
     public String getServerToken() {
         return ServerToken;
@@ -119,6 +122,14 @@ public class SftpServer implements PasswordAuthenticator {
         RegisterServerPath = registerServerPath;
     }
 
+    public Sftpd getSftpdConfig() {
+        return sftpdConfig;
+    }
+
+    public void setSftpdConfig(Sftpd sftpdConfig) {
+        this.sftpdConfig = sftpdConfig;
+    }
+
     public static void main(String[] args) {
 
         //SftpServerParseResult sr = SftpServerParser.parse(args,"SftpServer");
@@ -128,6 +139,9 @@ public class SftpServer implements PasswordAuthenticator {
         //ParseResult parseResult = parser.parseInternal(args, "SftpServer");
         SftpServerParseResult sr = new SftpServerParseResult(parser.parseInternal(args, "SftpServer"), parser.getOptionStore());
         if (!sr.successfulParse()) {
+
+            sr.getErrors().forEach(e->System.out.println(e.getMessage()));
+            //System.out.println();
             parser.printUsage(System.err);
 
         }
@@ -135,14 +149,25 @@ public class SftpServer implements PasswordAuthenticator {
                 sr.getOptionStore();
         if (opt.getHelp())
             parser.printUsage(System.err);
+
+        if (opt.isConfigFileSet() && opt.getConfigFile()!=null){
+
+            try{
+
+            SftpServer.getServer().setSftpdConfig(ConfigParseYAML.<Sftpd>loadConfig(opt.getConfigFile(), Sftpd.class).getOrElse(null));
+                SftpServer.getServer().initConfig();
+            }catch(FileNotFoundException e){
+                e.printStackTrace();
+            }
+        }
         if (opt.isPortSet() && opt.getPort() > 1024) {
             SftpServer.getServer().setPort(opt.getPort());
-            SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_PORT,opt.getPort());
+            SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_PORT,SftpServer.getServer().getPort());
 
         }
         if (opt.isServerNameSet()&&opt.getServerName()!=null) {
-
-            SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_NANME,opt.getServerName());
+            SftpServer.getServer().setServerName(opt.getServerName());
+            SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_NANME,SftpServer.getServer().getServerName());
 
         }
         if (opt.isSecurityKeySet() && opt.getSecurityKey()!=null) {
@@ -156,21 +181,25 @@ public class SftpServer implements PasswordAuthenticator {
             SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_PID,String.valueOf(pid));
         }
 
-        if (opt.isRootDirSet() && opt.getRootDir()!=null && opt.getRootDir().isDirectory()){
+        if (opt.isRootDirSet() && opt.getRootDir()!=null ){
             //System.out.println(opt.getRootDir().toString());
-            SftpServer.getServer().setRootDir(opt.getRootDir().toString());
-            SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_ROOT_DIR,opt.getRootDir());
-        }else{
-            LOG.error("RooDir option isn't set or not a directory ");
-            //System.err.println("RooDir option isn't set or not a directory ");
+            if(opt.getRootDir().isDirectory()) {
+                SftpServer.getServer().setRootDir(opt.getRootDir().toString());
+                SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTPD_SERVER_ROOT_DIR, SftpServer.getServer().getRootDir());
+            }else{
+                LOG.error("RooDir option isn't set or not a directory ");
+                //System.err.println("RooDir option isn't set or not a directory ");
+            }
         }
 
-        if(opt.isRegisterServerURLSet() && opt.getRegisterServerURL()!=null ){
+        if(opt.isRegisterServerURLSet() && opt.getRegisterServerURL()!=null && opt.isRegisterServerSet() && opt.getRegisterServer() ){
             LOG.debug("RegisterServerPath:"+opt.getRegisterServerURL());
 
             SftpServer.getServer().setRegisterServerPath(opt.getRegisterServerURL());
 
         }
+
+        SftpServer.getServer().setRegisterStatus(ReturnInfoConstant.SFTP_REGISTER_STATUS_UNREGISTERED);
 
         SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTP_REGISTER_STATUS,ReturnInfoConstant.SFTP_REGISTER_STATUS_UNREGISTERED);
 
@@ -191,6 +220,18 @@ public class SftpServer implements PasswordAuthenticator {
             serverInstance=new SftpServer();
             return serverInstance;
         }
+
+    }
+
+    private void initConfig(){
+        Sftpd sftpdConfig=this.getSftpdConfig();
+        this.setPort(sftpdConfig.getPort());
+        this.setRootDir(sftpdConfig.getRootDir());
+
+        if(sftpdConfig.isRegisterServer()) {
+            this.setRegisterServerPath(sftpdConfig.getRegisterServerUrl());
+        }
+        this.setServerName(sftpdConfig.getServerName());
 
     }
 
@@ -435,6 +476,8 @@ public class SftpServer implements PasswordAuthenticator {
                             if(obj.containsKey((A)ReturnInfoConstant.SFTPD_SERVER_TOKEN)){
                                 //ReturnInfoConstant.SFTPD_SERVER_TOKEN=obj.get(ReturnInfoConstant.SFTPD_SERVER_TOKEN).toString();
                                 SftpServer.getServer().getReturnM().put(ReturnInfoConstant.SFTPD_SERVER_TOKEN,obj.get((A)ReturnInfoConstant.SFTPD_SERVER_TOKEN).toString());
+
+                                SftpServer.getServer().setRegisterStatus(((Integer) obj.get((A)ReturnInfoConstant.SERVER_REGISTER_RESPONSE_STATUS)).intValue());
 
                                 LOG.debug("SftpSever ReturnM:"+SftpServer.getServer().getReturnM().toString());
 

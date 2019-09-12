@@ -2,12 +2,11 @@ NAME:: SftpServer
 ARGS::
   Port
     :{"-p", "--Port" } :{int}
-    :[minvalue="1025",maxvalue="65535",default="2222"]
-    :"set server port, default port is 2222."
+    :[minvalue="1025",maxvalue="65535"]
+    :"set server port."
   RootDir
     :{"-d", "--RootDir"} :{file}
-    :[default="./"]
-    :"the root directory set default root directory is ./"
+    :"the root directory set. "
   Help
     :{"-h", "--help"}
     :[allowArg="true",default="false"]
@@ -18,30 +17,30 @@ ARGS::
     :"The instance server name."
   SecurityKey
     :{"-k", "--SecurityKey"} :{string}
-    :"The security key for check"
+    :"The security key for check."
   RegisterServerURL
-      :{"-url", "--RegisterServerURL"} :{string}
-      :"Register Server with rest request by the URL"
+    :{"-url", "--RegisterServerURL"} :{string}
+    :"Register Server with rest request by the URL."
   ConfigFile
-      :{"-f", "--ConfigFile"} :{string-regexp}
-      :[regexp=".*\\.yaml"]
-      :"the YAML config file path"
+    :{"-f", "--ConfigFile"} :{string-regexp}
+    :[regexp=".*\\.yml"]
+    :"the YAML config file path."
   RegisterServer
-      :{"-r", "--RegisterServer"} :{boolean}
-      :[default="false", allowarg="false"]
-      :"if register information to the agent center"
+    :{"-r", "--RegisterServer"} :{boolean}
+    :[default="false", allowArg="true"]
+    :"if register information to the agent center"
   Ver
     :{"--version"}
 //FORMAT:: (Port | RootDir)* | Help;
 
 FORMAT::
 
-       (option)*;  // this is a regular expression
+      ( option )*  (Help| Ver)? ;  // this is a regular expression
 
 WHERE::
 
        option:   // shorthand to make the FORMAT easier to read
-                Port | RootDir | Help | Ver | ServerName | SecurityKey | RegisterServerPath | ConfigFile | RegisterServer;
+                Port | RootDir |  ServerName | SecurityKey | ConfigFile | RegisterServer | RegisterServerURL;
 VALIDITY::
-        {$(RegisterServer?) || $(RegisterServerURL?)}:
-        "-r and -url must display at the same time";
+        {$(RegisterServer) & !$(RegisterServerURL?)}:  "-r and -url must display at the same time";
+        {$(RegisterServerURL?) & !$(RegisterServer)}:  "-url option active  only when -r has set to true";

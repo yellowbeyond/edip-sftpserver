@@ -17,6 +17,12 @@
         <netty.version>4.1.36.Final</netty.version>
         <jdk15on.version>1.59</jdk15on.version>
         <out.lib>${project.build.directory}/lib</out.lib>
+        <project.bin.directory>src/main/bin</project.bin.directory>
+        <!-- 项目说明文档目录 -->
+        <project.document.directory>doc</project.document.directory>
+        <!-- 项目配置文件目录 -->
+        <project.config.directory>src/main/resources</project.config.directory>
+
     </properties>
 
     <pluginRepositories>
@@ -101,20 +107,16 @@
             <groupId>clops</groupId>
             <artifactId>clops-runtime</artifactId>
             <version>0.3.0</version>
-
         </dependency>
         <dependency>
             <groupId>clops</groupId>
             <artifactId>velocity</artifactId>
             <version>1.6.2</version>
-
         </dependency>
         <dependency>
             <groupId>clops</groupId>
             <artifactId>velocity-dep</artifactId>
             <version>1.6.2</version>
-
-
         </dependency>
     </dependencies>
 
@@ -144,6 +146,29 @@
             </executions>
 
         </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <!-- 对项目的组装进行配置 -->
+                <configuration>
+                    <!-- 指定assembly插件的配置文件所在位置 -->
+                    <descriptors>
+                        <descriptor>src/main/resources/assembly/package.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <!-- 将组装绑定到maven生命周期的哪一阶段 -->
+                        <phase>package</phase>
+                        <goals>
+                            <!-- 指定assembly插件的打包方式-->
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -198,6 +223,10 @@
                             <Class-Path>./</Class-Path>
                         </manifestEntries>
                     </archive>
+                    <excludes>
+                        <exclude>*.properties</exclude>
+                        <exclude>*.yml</exclude>
+                    </excludes>
 
                 </configuration>
 

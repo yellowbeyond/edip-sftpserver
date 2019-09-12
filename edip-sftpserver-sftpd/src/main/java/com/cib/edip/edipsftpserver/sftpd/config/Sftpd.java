@@ -11,16 +11,16 @@ public class Sftpd{
     private Integer port;
     private String rootDir;
     private String serverName;
-    private String registerServerPath;
+    private String registerServerUrl;
+    private boolean registerServer;
 
-    @Setter
+
     @Getter
     public Integer getPort() {
         return port;
     }
 
     @Setter
-    @Getter
     public void setPort(Integer port) {
         this.port = port;
     }
@@ -49,17 +49,22 @@ public class Sftpd{
         this.serverName = serverName;
     }
 
-    @Setter
+
     @Getter
-    public String getRegisterServerPath() {
-        return registerServerPath;
+    public String getRegisterServerUrl() {
+        return registerServerUrl;
     }
 
     @Setter
-    @Getter
-    public void setRegisterServerPath(String registerServerPath) {
-        this.registerServerPath = registerServerPath;
+    public void setRegisterServerUrl(String registerServerUrl) {
+        this.registerServerUrl = registerServerUrl;
     }
 
+    public boolean isRegisterServer() {
+        return registerServer;
+    }
 
+    public void setRegisterServer(boolean registerServer) {
+        this.registerServer = registerServer;
+    }
 }
