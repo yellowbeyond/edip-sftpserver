@@ -3,4 +3,6 @@
 /edip-rest-server/target/
 /edip-sftpserver-core/target/
 /edip-sftpserver-sftpd/target/
+/edip-sftpserver-sftp/target/
 /target/
+/.idea/

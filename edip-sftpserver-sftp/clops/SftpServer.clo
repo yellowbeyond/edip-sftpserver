@@ -1,0 +1,46 @@
+NAME:: SftpServer
+ARGS::
+  Port
+    :{"-p", "--Port" } :{int}
+    :[minvalue="1025",maxvalue="65535"]
+    :"set server port."
+  RootDir
+    :{"-d", "--RootDir"} :{file}
+    :"the root directory set. "
+  Help
+    :{"-h", "--help"}
+    :[allowArg="true",default="false"]
+    :"Displays this message."
+  ServerName
+    :{"-n", "--ServerName"} :{string}
+    :[default="SftpSever-default"]
+    :"The instance server name."
+  SecurityKey
+    :{"-k", "--SecurityKey"} :{string}
+    :"The security key for check."
+  RegisterServerURL
+    :{"-url", "--RegisterServerURL"} :{string}
+    :"Register Server with rest request by the URL."
+  ConfigFile
+    :{"-f", "--ConfigFile"} :{string-regexp}
+    :[regexp=".*\\.yml"]
+    :"the YAML config file path."
+  RegisterServer
+    :{"-r", "--RegisterServer"} :{boolean}
+    :[default="false", allowArg="true"]
+    :"if register information to the agent center"
+  Ver
+    :{"--version"}
+//FORMAT:: (Port | RootDir)* | Help;
+
+FORMAT::
+
+      ( option )*  (Help| Ver)? ;  // this is a regular expression
+
+WHERE::
+
+       option:   // shorthand to make the FORMAT easier to read
+                Port | RootDir |  ServerName | SecurityKey | ConfigFile | RegisterServer | RegisterServerURL;
+VALIDITY::
+        {$(RegisterServer) & !$(RegisterServerURL?)}:  "-r and -url must display at the same time";
+        {$(RegisterServerURL?) & !$(RegisterServer)}:  "-url option active  only when -r has set to true";

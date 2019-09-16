@@ -3,6 +3,8 @@ dorado:
 
 sftpd:
   port: 2007
-  root-dir: /tmp
-  server-name: sftp-server
-  register-server-path: http://localhost:8081/info/register-server
+  rootDir: /tmp
+  serverName: sftp-server
+  registerServerUrl: http://localhost:8081/info/register-server
+  registerServer: true
+  classPath: ../lib/*

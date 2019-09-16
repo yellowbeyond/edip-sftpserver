@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="edip-sftpserver-sftp" />
         <module name="edip-sftpserver-sftpd" />
         <module name="edip-sftpserver-core" />
         <module name="edip-rest-client" />

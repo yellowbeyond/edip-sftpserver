@@ -4,10 +4,19 @@ import ai.houyi.dorado.springboot.DoradoSpringBootApplication;
 import com.cib.edip.edipsftpserver.fork.ForkSftpServer;
 import com.cib.edip.edipsftpserver.fork.ProcessInfo;
 import com.cib.edip.edipsftpserver.sftpd.SftpServer;
+import com.cib.edip.edipsftpserver.config.Config;
+
+import com.cib.edip.edipsftpserver.utils.Helpers;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,25 +27,39 @@ public class EdipSftpserverApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(EdipSftpserverApplication.class);
 
+    @Autowired
+    private SftpServerContext  sftpServerContext;
+
+
+
     public static void main(String[] args) {
         SpringApplication.run(EdipSftpserverApplication.class, args);
 
+
+
+
+        Config config=(Config) SftpServerContext.getBean("config");
         ForkSftpServer fss = new ForkSftpServer();
         HashMap<String, String> _args = new HashMap<String, String>();
-        _args.put("-p", "2009");
-        _args.put("-d", "/tmp");
-        _args.put("-n", "server-1");
+        _args.put("-p", Helpers.checkNotNull(config.getPort())?config.getPort().toString():"2009");
+        _args.put("-d", Helpers.checkNotNull(config.getPort())?config.getRootDir():"/tmp");
+        _args.put("-n", Helpers.checkNotNull(config.getPort())?config.getServerName():"server-1");
         String uuid = UUID.randomUUID().toString();
         _args.put("-k", uuid);
-        _args.put("-r","http://localhost:8081/info/register-server");
+        _args.put("-r",Helpers.checkNotNull(config.getPort())?config.getRegisterServerUrl():"http://localhost:8081/info/register-server");
 
         //_args.put("-Dlog4j.configuration=file:src/main/resources/log4j.properties"," ");
+
+
+
+
 
 
         HashMap<String, String> env = new HashMap<String, String>();
 
         try {
-            ProcessInfo pi = fss.startProcess(Class.forName("com.cib.edip.edipsftpserver.sftpd.SftpServer"), _args, env, "./target/*:./target/lib/*", "server_test");
+            ProcessInfo pi = fss.startProcess(Class.forName("com.cib.edip.edipsftpserver.sftpd.SftpServer"), _args, env,
+                    Helpers.checkNotNull(config.getPort())?config.getClassPath():"./target/*:./target/lib/*", "server_test");
 			/*if(){
 
 			}

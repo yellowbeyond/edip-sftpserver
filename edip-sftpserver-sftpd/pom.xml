@@ -129,6 +129,7 @@
             <artifactId>maven-scala-plugin</artifactId>
             <executions>
                 <execution>
+                    <phase>process-resources</phase>
                     <goals>
                         <goal>compile</goal>
                         <goal>testCompile</goal>
@@ -140,6 +141,7 @@
                         </args>
                         <includes>
                             <include>**/*.scala/</include>
+                            <include>**/*.java/</include>
                         </includes>
                     </configuration>
                 </execution>
@@ -201,9 +203,7 @@
                 <source>1.8</source>
                 <target>1.8</target>
                 <encoding>UTF-8</encoding>
-                <!-- compilerArguments>
-                    <extdirs>/lib</extdirs>
-                </compilerArguments -->
+
             </configuration>
             </plugin>
             <plugin>
