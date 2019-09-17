@@ -12,11 +12,6 @@ import org.springframework.boot.SpringApplication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,32 +29,29 @@ public class EdipSftpserverApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(EdipSftpserverApplication.class, args);
-
-
-
-
         Config config=(Config) SftpServerContext.getBean("config");
         ForkSftpServer fss = new ForkSftpServer();
         HashMap<String, String> _args = new HashMap<String, String>();
         _args.put("-p", Helpers.checkNotNull(config.getPort())?config.getPort().toString():"2009");
-        _args.put("-d", Helpers.checkNotNull(config.getPort())?config.getRootDir():"/tmp");
-        _args.put("-n", Helpers.checkNotNull(config.getPort())?config.getServerName():"server-1");
+        _args.put("-d", Helpers.checkNotNull(config.getRootDir())?config.getRootDir():"/tmp");
+        _args.put("-n", Helpers.checkNotNull(config.getServerName())?config.getServerName():"server-1");
         String uuid = UUID.randomUUID().toString();
         _args.put("-k", uuid);
-        _args.put("-r",Helpers.checkNotNull(config.getPort())?config.getRegisterServerUrl():"http://localhost:8081/info/register-server");
+        _args.put("-r",null);
+        _args.put("-url",Helpers.checkNotNull(config.getRegisterServerUrl())?config.getRegisterServerUrl():"http://localhost:8081/info/register-server");
 
         //_args.put("-Dlog4j.configuration=file:src/main/resources/log4j.properties"," ");
 
 
 
-
+        LOG.debug("======================"+System.getProperty("log4j.configuration"));
 
 
         HashMap<String, String> env = new HashMap<String, String>();
 
         try {
             ProcessInfo pi = fss.startProcess(Class.forName("com.cib.edip.edipsftpserver.sftpd.SftpServer"), _args, env,
-                    Helpers.checkNotNull(config.getPort())?config.getClassPath():"./target/*:./target/lib/*", "server_test");
+                    Helpers.checkNotNull(config.getClassPath())?config.getClassPath():"./target/*:./target/lib/*", "server_test");
 			/*if(){
 
 			}

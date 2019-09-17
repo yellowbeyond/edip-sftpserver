@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.cib.edip.edipsftpserver.sftpd.SftpServer;
+import com.cib.edip.edipsftpserver.utils.Helpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,8 @@ public class ForkSftpServer implements JavaFork {
                 pb.command().add(cp);
             }
 
-            pb.command().add("-Dlog4j.configuration=file:///vagrant/workspace/project/test_kfk/edip-sftpserver/edip-rest-server/src/main/resources/log4j-sftpd.properties");
+            pb.command().add("-Dlog4j.configuration="+(Helpers.checkNotNull(System.getProperty("log4j.configuration"))?
+                    System.getProperty("log4j.configuration"):"file:///vagrant/workspace/project/test_kfk/edip-sftpserver/edip-rest-server/src/main/resources/log4j-sftpd.properties"));
             pb.command().add(mainClass.getName());
 
            // pb.command().add("-Dlog4j.configuration=file://src/main/resources/log4j.properties");
@@ -115,7 +117,12 @@ public class ForkSftpServer implements JavaFork {
     private void setArgs(ProcessBuilder pb, Map<String,String> args){
         args.forEach((k,v)->{
             pb.command().add(k);
-            pb.command().add(v);
+
+            if(Helpers.checkNotNull(v)) {
+                pb.command().add(v);
+            }
+
+            LOG.debug("========================"+k+"<==========>"+v);
         });
 
 
