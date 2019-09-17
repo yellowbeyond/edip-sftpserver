@@ -1,6 +1,5 @@
 dorado:
   port: 8081
-
 sftpd:
   port: 2007
   rootDir: /tmp
@@ -8,3 +7,4 @@ sftpd:
   registerServerUrl: http://localhost:8081/info/register-server
   registerServer: true
   classPath: ../lib/*
+  mainClass: com.cib.edip.edipsftpserver.sftpd.SftpServer

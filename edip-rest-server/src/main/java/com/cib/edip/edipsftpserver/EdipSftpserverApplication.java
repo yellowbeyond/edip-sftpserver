@@ -44,7 +44,7 @@ public class EdipSftpserverApplication {
         HashMap<String, String> env = new HashMap<String, String>();
 
         try {
-            ProcessInfo pi = fss.startProcess(Class.forName("com.cib.edip.edipsftpserver.sftpd.SftpServer"), _args, env,
+            ProcessInfo pi = fss.startProcess(Class.forName(Helpers.checkNotNull(config.getMainClass())?config.getMainClass():"com.cib.edip.edipsftpserver.sftpd.SftpServer"), _args, env,
                     Helpers.checkNotNull(config.getClassPath())?config.getClassPath():"./target/*:./target/lib/*", "server_test");
 			/*if(){
 

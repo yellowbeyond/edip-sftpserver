@@ -14,6 +14,17 @@ public class Config {
     private String registerServerUrl;
     private boolean registerServer;
     private String classPath;
+    private String mainClass;
+
+
+    @Getter
+    public String getMainClass() {
+        return mainClass;
+    }
+    @Setter
+    public void setMainClass(String mainClass) {
+        this.mainClass = mainClass;
+    }
 
 
 

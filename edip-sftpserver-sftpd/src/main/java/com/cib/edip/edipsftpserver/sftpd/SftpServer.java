@@ -457,8 +457,8 @@ public class SftpServer implements PasswordAuthenticator {
                * body.put() //use for add new post arg
                */
 
-            LOG.debug("-------------------------------------------------------------------1"
-                    + SftpServer.getServer().getRegisterServerPath() + "=========" + body.toString());
+            LOG.debug("url:"
+                    + SftpServer.getServer().getRegisterServerPath() + " ===== body:" + body.toString());
 
                 RestClient.doPost(SftpServer.getServer().getRegisterServerPath(),body, new RestResponseHandler<Map>(Map.class){
 
@@ -480,6 +480,9 @@ public class SftpServer implements PasswordAuthenticator {
                                 SftpServer.getServer().setRegisterStatus(((Integer) obj.get((A)ReturnInfoConstant.SERVER_REGISTER_RESPONSE_STATUS)).intValue());
 
                                 LOG.debug("SftpSever ReturnM:"+SftpServer.getServer().getReturnM().toString());
+
+                                LOG.info("SftpServer:"+SftpServer.getServer().getServerName()+" has registered successful");
+
 
                             }
                         }
