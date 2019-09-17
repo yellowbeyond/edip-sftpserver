@@ -2,7 +2,6 @@ package com.cib.edip.edipsftpserver.sftpd.config;
 
 import jdk.nashorn.internal.objects.annotations.Getter;
 import jdk.nashorn.internal.objects.annotations.Setter;
-import scala.Function0;
 
 
 
@@ -13,7 +12,19 @@ public class Sftpd{
     private String serverName;
     private String registerServerUrl;
     private boolean registerServer;
+    private String hostKey;
 
+
+
+
+    @Getter
+    public String getHostKey() {
+        return hostKey;
+    }
+    @Setter
+    public void setHostKey(String hostKey) {
+        this.hostKey = hostKey;
+    }
 
     @Getter
     public Integer getPort() {
@@ -25,26 +36,24 @@ public class Sftpd{
         this.port = port;
     }
 
-    @Setter
+
     @Getter
     public String getRootDir() {
         return rootDir;
     }
 
     @Setter
-    @Getter
     public void setRootDir(String rootDir) {
         this.rootDir = rootDir;
     }
 
-    @Setter
+
     @Getter
     public String getServerName() {
         return serverName;
     }
 
     @Setter
-    @Getter
     public void setServerName(String serverName) {
         this.serverName = serverName;
     }
@@ -63,7 +72,7 @@ public class Sftpd{
     public boolean isRegisterServer() {
         return registerServer;
     }
-
+    @Setter
     public void setRegisterServer(boolean registerServer) {
         this.registerServer = registerServer;
     }

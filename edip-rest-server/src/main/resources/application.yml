@@ -8,3 +8,4 @@ sftpd:
   registerServer: true
   classPath: ../lib/*
   mainClass: com.cib.edip.edipsftpserver.sftpd.SftpServer
+  hostKey: ./keys/edip-sftpserver-host-rsa-key

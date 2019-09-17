@@ -64,7 +64,15 @@ public class SftpServer implements PasswordAuthenticator {
     private int RegisterStatus;
     private String ServerToken;
     private String ServerName;
+    private String hostKey;
 
+    public String getHostKey() {
+        return hostKey;
+    }
+
+    public void setHostKey(String hostKey) {
+        this.hostKey = hostKey;
+    }
 
     public String getServerName() {
         return ServerName;
@@ -199,6 +207,20 @@ public class SftpServer implements PasswordAuthenticator {
 
         }
 
+        if(opt.isHostKeySet() && Helpers.checkNotNull(opt.getHostKey())){
+
+            SftpServer.getServer().setHostKey(opt.getHostKey());
+
+        }else{
+
+            if(Helpers.checkNotNull( SftpServer.getServer().getHostKey())){
+                SftpServer.getServer().setHostKey(SftpServer.getServer().getHostKey());
+            }
+
+            SftpServer.getServer().setHostKey(HOSTKEY_FILE_PEM);
+        }
+
+
         SftpServer.getServer().setRegisterStatus(ReturnInfoConstant.SFTP_REGISTER_STATUS_UNREGISTERED);
 
         SftpServer.getServer().addReturnInfo(ReturnInfoConstant.SFTP_REGISTER_STATUS,ReturnInfoConstant.SFTP_REGISTER_STATUS_UNREGISTERED);
@@ -227,6 +249,7 @@ public class SftpServer implements PasswordAuthenticator {
         Sftpd sftpdConfig=this.getSftpdConfig();
         this.setPort(sftpdConfig.getPort());
         this.setRootDir(sftpdConfig.getRootDir());
+        this.setHostKey(sftpdConfig.getHostKey());
 
         if(sftpdConfig.isRegisterServer()) {
             this.setRegisterServerPath(sftpdConfig.getRegisterServerUrl());
@@ -372,12 +395,30 @@ public class SftpServer implements PasswordAuthenticator {
     protected void setupKeyPair() {
         final AbstractGeneratorHostKeyProvider provider;
         if (SecurityUtils.isBouncyCastleRegistered()) {
-            provider = SecurityUtils.createGeneratorHostKeyProvider(new File(HOSTKEY_FILE_PEM).toPath());
+
+            File hostkey=new File(SftpServer.getServer().getHostKey());
+
+            if(!Helpers.checkNotNull(hostkey)){
+                return;
+
+            }
+
+                LOG.debug("Using HostKey file :"+hostkey.toPath().toAbsolutePath());
+
+                provider = SecurityUtils.createGeneratorHostKeyProvider(new File(SftpServer.getServer().getHostKey()).toPath());
+
+
+
+
         } else {
             provider = new SimpleGeneratorHostKeyProvider(new File(HOSTKEY_FILE_SER).toPath());
+
         }
+
         provider.setAlgorithm(KeyUtils.RSA_ALGORITHM);
         sshd.setKeyPairProvider(provider);
+
+
     }
 
     protected void setupFactories() {

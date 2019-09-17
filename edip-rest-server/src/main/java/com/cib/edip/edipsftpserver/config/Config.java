@@ -15,7 +15,16 @@ public class Config {
     private boolean registerServer;
     private String classPath;
     private String mainClass;
+    private String hostKey;
 
+    @Getter
+    public String getHostKey() {
+        return hostKey;
+    }
+    @Setter
+    public void setHostKey(String hostKey) {
+        this.hostKey = hostKey;
+    }
 
     @Getter
     public String getMainClass() {

@@ -33,7 +33,7 @@ public class EdipSftpserverApplication {
         _args.put("-k", uuid);
         _args.put("-r",null);
         _args.put("-url",Helpers.checkNotNull(config.getRegisterServerUrl())?config.getRegisterServerUrl():"http://localhost:8081/info/register-server");
-
+        _args.put("--HostKey="+(Helpers.checkNotNull(config.getHostKey())?config.getHostKey():"/keys/edip-sftpserver-host-rsa-key"),null);
         //_args.put("-Dlog4j.configuration=file:src/main/resources/log4j.properties"," ");
 
 

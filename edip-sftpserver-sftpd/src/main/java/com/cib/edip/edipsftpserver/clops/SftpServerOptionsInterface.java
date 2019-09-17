@@ -145,6 +145,23 @@ public interface SftpServerOptionsInterface {
   boolean getRegisterServer();
   
 
+// Option HostKey. 
+// Aliases: [--HostKey]
+
+  /**
+   * @return true if the option HostKey has been used
+   * in the command line.
+   */
+  boolean isHostKeySet();
+
+  /**
+   * Get the value of {@code Option} HostKey.
+   * @return the value of the option HostKey if it has been set
+   * using the arguments. Throws an {@code IllegalStateException} otherwise.
+   */ 
+  String getHostKey();
+  
+
 // Option Ver. 
 // Aliases: [--version]
 

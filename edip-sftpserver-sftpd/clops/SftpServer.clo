@@ -29,6 +29,10 @@ ARGS::
     :{"-r", "--RegisterServer"} :{boolean}
     :[default="false", allowArg="true"]
     :"if register information to the agent center"
+  HostKey
+    :{"--HostKey"} :{string}
+    :[default="../keys/edip-sftpserver-host-rsa-key"]
+    :"if register information to the agent center"
   Ver
     :{"--version"}
 //FORMAT:: (Port | RootDir)* | Help;
@@ -40,7 +44,7 @@ FORMAT::
 WHERE::
 
        option:   // shorthand to make the FORMAT easier to read
-                Port | RootDir |  ServerName | SecurityKey | ConfigFile | RegisterServer | RegisterServerURL;
+                Port | RootDir |  ServerName | SecurityKey | ConfigFile | RegisterServer | RegisterServerURL | HostKey;
 VALIDITY::
         {$(RegisterServer) & !$(RegisterServerURL?)}:  "-r and -url must display at the same time";
         {$(RegisterServerURL?) & !$(RegisterServer)}:  "-url option active  only when -r has set to true";

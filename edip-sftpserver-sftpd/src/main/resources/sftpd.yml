@@ -3,3 +3,4 @@ rootDir: /tmp
 serverName: sftp-server
 registerServerUrl: http://localhost:8081/info/register-server
 registerServer: false
+hostKey: keys/edip-sftpserver-host-rsa-key
