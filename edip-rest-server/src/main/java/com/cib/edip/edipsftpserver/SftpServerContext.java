@@ -25,27 +25,12 @@ public class SftpServerContext implements ApplicationContextAware {
         if(SftpServerContext.applicationContext == null) {
             SftpServerContext.applicationContext = applicationContext;
         }
-        System.out.println("---------------------------------------------------------------------");
-
-        System.out.println("---------------------------------------------------------------------");
-
-        System.out.println("---------------me.shijunjie.util.SpringUtil------------------------------------------------------");
-
-        System.out.println("========ApplicationContext配置成功,在普通类可以通过调用SpringUtils.getAppContext()获取applicationContext对象,applicationContext="+SftpServerContext.applicationContext+"========");
-
-        System.out.println("---------------------------------------------------------------------");
     }
 
-    @Autowired
-    private Config config;
-
-    public Config getConfig() {
-        return config;
+    public static Config getConfig() {
+        return getBean(Config.class);
     }
 
-    public void setConfig(Config config) {
-        this.config = config;
-    }
 
     public static SftpServerContext getInstance(){
         return SftpServerContext.sftpServerContext;

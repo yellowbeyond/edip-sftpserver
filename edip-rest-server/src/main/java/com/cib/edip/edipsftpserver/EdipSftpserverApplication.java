@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @DoradoSpringBootApplication
@@ -22,14 +21,9 @@ public class EdipSftpserverApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(EdipSftpserverApplication.class);
 
-    @Autowired
-    private SftpServerContext  sftpServerContext;
-
-
-
     public static void main(String[] args) {
         SpringApplication.run(EdipSftpserverApplication.class, args);
-        Config config=(Config) SftpServerContext.getBean("config");
+        Config config=SftpServerContext.getConfig();
         ForkSftpServer fss = new ForkSftpServer();
         HashMap<String, String> _args = new HashMap<String, String>();
         _args.put("-p", Helpers.checkNotNull(config.getPort())?config.getPort().toString():"2009");
@@ -44,7 +38,7 @@ public class EdipSftpserverApplication {
 
 
 
-        LOG.debug("======================"+System.getProperty("log4j.configuration"));
+        //LOG.debug("======================"+System.getProperty("log4j.configuration"));
 
 
         HashMap<String, String> env = new HashMap<String, String>();
