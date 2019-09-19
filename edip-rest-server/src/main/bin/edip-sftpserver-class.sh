@@ -138,7 +138,7 @@ done
 # Launch mode
 
 
-echo "classpath:"$CLASSPATH
+#echo "classpath:"$CLASSPATH
 
 if [ "x$DAEMON_MODE" = "xtrue" ]; then
   nohup $JAVA $EDIP_SFTPD_HEAP_OPTS  -cp $CLASSPATH $EDIP_SFTPD_LOG4J_OPTS $EDIP_SFTPD_OPTS "$@" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
