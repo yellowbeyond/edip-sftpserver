@@ -37,6 +37,8 @@ public class ForkSftpServer implements JavaFork {
                 pb.command().add(cp);
             }
 
+            LOG.debug("fork classpath:"+cp);
+
             pb.command().add("-Dlog4j.configuration="+(Helpers.checkNotNull(System.getProperty("log4j.configuration"))?
                     System.getProperty("log4j.configuration"):"file:///vagrant/workspace/project/test_kfk/edip-sftpserver/edip-rest-server/src/main/resources/log4j-sftpd.properties"));
             pb.command().add(mainClass.getName());

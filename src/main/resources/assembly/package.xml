@@ -42,7 +42,23 @@
         </fileSet>
 
         <fileSet>
-            <directory>${project.basedir}/keys</directory>
+            <directory>${project.basedir}/edip-sftpserver-sftpd/src/main/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.basedir}/edip-sftpserver-sftpd/target/classes</directory>
+            <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>sftpd.yml</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.basedir}/edip-sftpserver-sftpd/keys</directory>
             <outputDirectory>keys</outputDirectory>
             <includes>
                 <include>*</include>
@@ -86,6 +102,14 @@
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>*.jar</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.basedir}/edip-rest-server/src/main/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>*</include>
             </includes>
         </fileSet>
 

@@ -20,6 +20,7 @@
         <project.bin.directory>src/main/bin</project.bin.directory>
         <!-- 项目说明文档目录 -->
         <project.document.directory>doc</project.document.directory>
+        <project.keys.directory>keys</project.keys.directory>
         <!-- 项目配置文件目录 -->
         <project.config.directory>src/main/resources</project.config.directory>
 

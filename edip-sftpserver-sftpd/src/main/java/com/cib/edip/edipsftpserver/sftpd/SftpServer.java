@@ -65,6 +65,15 @@ public class SftpServer implements PasswordAuthenticator {
     private String ServerToken;
     private String ServerName;
     private String hostKey;
+    private String sftpdHome;
+
+    public String getSftpdHome() {
+        return sftpdHome;
+    }
+
+    public void setSftpdHome(String sftpdHome) {
+        this.sftpdHome = sftpdHome;
+    }
 
     public String getHostKey() {
         return hostKey;
@@ -143,6 +152,7 @@ public class SftpServer implements PasswordAuthenticator {
         //SftpServerParseResult sr = SftpServerParser.parse(args,"SftpServer");
 
 
+
         SftpServerParser parser = new SftpServerParser();
         //ParseResult parseResult = parser.parseInternal(args, "SftpServer");
         SftpServerParseResult sr = new SftpServerParseResult(parser.parseInternal(args, "SftpServer"), parser.getOptionStore());
@@ -153,6 +163,10 @@ public class SftpServer implements PasswordAuthenticator {
             parser.printUsage(System.err);
 
         }
+
+
+        SftpServer.getServer().initEnv();
+        //SftpServer.getServer().setSftpdHome(System.getenv(ReturnInfoConstant.SFTPD_SERVER_HOME_ENV));
         SftpServerOptionsInterface opt =
                 sr.getOptionStore();
         if (opt.getHelp())
@@ -161,6 +175,8 @@ public class SftpServer implements PasswordAuthenticator {
         if (opt.isConfigFileSet() && opt.getConfigFile()!=null){
 
             try{
+
+                LOG.debug("config_file:"+opt.getConfigFile());
 
             SftpServer.getServer().setSftpdConfig(ConfigParseYAML.<Sftpd>loadConfig(opt.getConfigFile(), Sftpd.class).getOrElse(null));
                 SftpServer.getServer().initConfig();
@@ -213,11 +229,12 @@ public class SftpServer implements PasswordAuthenticator {
 
         }else{
 
-            if(Helpers.checkNotNull( SftpServer.getServer().getHostKey())){
-                SftpServer.getServer().setHostKey(SftpServer.getServer().getHostKey());
+            if(!Helpers.checkNotNull( SftpServer.getServer().getHostKey())){
+                //SftpServer.getServer().setHostKey(SftpServer.getServer().getHostKey());
+                SftpServer.getServer().setHostKey(HOSTKEY_FILE_PEM);
             }
 
-            SftpServer.getServer().setHostKey(HOSTKEY_FILE_PEM);
+
         }
 
 
@@ -251,11 +268,23 @@ public class SftpServer implements PasswordAuthenticator {
         this.setRootDir(sftpdConfig.getRootDir());
         this.setHostKey(sftpdConfig.getHostKey());
 
+
         if(sftpdConfig.isRegisterServer()) {
             this.setRegisterServerPath(sftpdConfig.getRegisterServerUrl());
         }
         this.setServerName(sftpdConfig.getServerName());
 
+    }
+
+    private void initEnv(){
+        if(Helpers.checkNotNull(System.getenv(ReturnInfoConstant.SFTPD_HOME_ENV))){
+
+            LOG.debug("EDIP_SFTP_SERVER_HOME:"+System.getenv(ReturnInfoConstant.SFTPD_HOME_ENV));
+            SftpServer.getServer().setSftpdHome(System.getenv(ReturnInfoConstant.SFTPD_HOME_ENV));
+            //System.setProperty(ReturnInfoConstant.SFTPD_HOME_ENV,SftpServer.getServer().getSftpdHome());
+            LOG.debug(" SftpServer.getServer().setSftpdHome:"+ SftpServer.getServer().getSftpdHome());
+
+        }
     }
 
     public void start() {
@@ -396,7 +425,20 @@ public class SftpServer implements PasswordAuthenticator {
         final AbstractGeneratorHostKeyProvider provider;
         if (SecurityUtils.isBouncyCastleRegistered()) {
 
-            File hostkey=new File(SftpServer.getServer().getHostKey());
+            File hostkey;
+
+            LOG.debug("SftpServer.getServer().getSftpdHome():"+SftpServer.getServer().getSftpdHome());
+
+
+
+            if(Helpers.checkNotNull(SftpServer.getServer().getSftpdHome())) {
+
+                LOG.debug("SftpServer.getServer().getHostKey():"+SftpServer.getServer().getHostKey());
+
+                hostkey = new File(SftpServer.getServer().getSftpdHome()+ java.io.File.separator+SftpServer.getServer().getHostKey());
+            }else{
+                hostkey = new File(SftpServer.getServer().getHostKey());
+            }
 
             if(!Helpers.checkNotNull(hostkey)){
                 return;
@@ -405,7 +447,7 @@ public class SftpServer implements PasswordAuthenticator {
 
                 LOG.debug("Using HostKey file :"+hostkey.toPath().toAbsolutePath());
 
-                provider = SecurityUtils.createGeneratorHostKeyProvider(new File(SftpServer.getServer().getHostKey()).toPath());
+                provider = SecurityUtils.createGeneratorHostKeyProvider(hostkey.toPath());
 
 
 
@@ -550,6 +592,8 @@ public class SftpServer implements PasswordAuthenticator {
 
         public static int SERVER_REGISTER_RESPONSE_STATUS_SUCCESS=0x0001;
         public static int SERVER_REGISTER_RESPONSE_STATUS_FAILURE=0x0101;
+
+        public static String SFTPD_HOME_ENV="EDIP_SFTPD_HOME";
 
     }
 

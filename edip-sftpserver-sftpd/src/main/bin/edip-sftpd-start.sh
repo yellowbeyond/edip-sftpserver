@@ -16,35 +16,65 @@
 
 #if [ $# -lt 1 ];
 #then
-#	echo "USAGE: $0 [-daemon] server.properties"
+#	echo "USAGE: $0 [-daemon] [-f] [-n]"
 #	exit 1
 #fi
-base_dir=$(dirname $0)
+base_dir=$(dirname $0)/..
+
+if [ "x$EDIP_SFTPD_HOME" = "x" ]; then
+  export  EDIP_SFTPD_HOME=$(cd $base_dir; pwd)
+
+  echo "EDIP_SFTPD_HOME:"$EDIP_SFTPD_HOME
+fi
 
 if [ "x$EDIP_SFTPD_LOG4J_OPTS" = "x" ]; then
-    export EDIP_SFTPD_LOG4J_OPTS="-Dlog4j.configuration=file:$base_dir/../conf/log4j.properties"
+    export EDIP_SFTPD_LOG4J_OPTS="-Dlog4j.configuration=file:$EDIP_SFTPD_HOME/conf/log4j.properties -Dedip.sftpd.home=$EDIP_SFTPD_HOME"
 fi
 
 if [ "x$EDIP_SFTPD_HEAP_OPTS" = "x" ]; then
     export EDIP_SFTPD_HEAP_OPTS="-Xmx1G -Xms1G"
 fi
 
-EXTRA_ARGS="-name EDIP_SFTPD_Server "
+EXTRA_ARGS="-name edip_sftpd -Dsftpd.name=edip_sftpd"
 
 MAIN_CLASS="com.cib.edip.edipsftpserver.sftpd.SftpServer"
 
 CONF_FILE="sftpd.yml"
 
-CONF_FILE_OPT="-f $base_dir/../conf/"$CONF_FILE
+CONF_FILE_OPT=" -f $EDIP_SFTPD_HOME/conf/"$CONF_FILE
+
+
+while [ $# -gt 0 ]; do
 
 COMMAND=$1
 case $COMMAND in
   -daemon)
-    EXTRA_ARGS="-daemon "$EXTRA_ARGS
+    EXTRA_ARGS_DAEMON="-daemon "
     shift
+    ;;
+  -n)
+    SERVER_NAME=$2
+    EXTRA_ARGS="-name $SERVER_NAME -Dsftpd.name=$SERVER_NAME"
+
+    echo "SFTPD start by name $SERVER_NAME"
+    SERVER_NAME="-n $SERVER_NAME "
+    shift 2
+    ;;
+  -f)
+     if [ -f "$2" ];then
+    echo "SFTPD start using config file $2"
+    CONF_FILE_OPT=" -f $2"
+    else
+    echo "config file $2 isn't exist"
+    exit
+    fi
+
+    shift 2
     ;;
   *)
     ;;
 esac
+done
 
-exec $base_dir/edip-sftpd-class.sh $EXTRA_ARGS  $MAIN_CLASS $CONF_FILE_OPT $@
+
+exec $EDIP_SFTPD_HOME/bin/edip-sftpd-class.sh $EXTRA_ARGS_DAEMON $EXTRA_ARGS  $MAIN_CLASS $SERVER_NAME $CONF_FILE_OPT "$@"

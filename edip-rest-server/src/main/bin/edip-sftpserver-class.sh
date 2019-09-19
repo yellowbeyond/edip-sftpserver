@@ -22,9 +22,16 @@ fi
 
 base_dir=$(dirname $0)/..
 
+if [ "x$EDIP_SFTP_SERVER_HOME" = "x" ]; then
+  export  EDIP_SFTP_SERVER_HOME=$(cd $base_dir; pwd)
+
+  echo "EDIP_SFTP_SERVER_HOME:"$EDIP_SFTP_SERVER_HOME
+fi
+
+
 # create logs directory
 if [ "x$LOG_DIR" = "x" ]; then
-    LOG_DIR="$base_dir/logs"
+    LOG_DIR="$EDIP_SFTP_SERVER_HOME/logs"
 fi
 
 if [ ! -d "$LOG_DIR" ]; then
@@ -40,19 +47,19 @@ if [ -z "$SCALA_BINARY_VERSION" ]; then
 fi
 
 # run ./gradlew copyDependantLibs to get all dependant jars in a local dir
-for file in $base_dir/*.jar;
+for file in $EDIP_SFTP_SERVER_HOME/*.jar;
 do
   CLASSPATH=$CLASSPATH:$file
 done
 
 
 # classpath addition for release
-for file in $base_dir/lib/*.jar;
+for file in $EDIP_SFTP_SERVER_HOME/lib/*.jar;
 do
   CLASSPATH=$CLASSPATH:$file
 done
 
-for file in $base_dir/conf/*;
+for file in $EDIP_SFTP_SERVER_HOME/conf/*;
 do
   CLASSPATH=$CLASSPATH:$file
 done
@@ -68,7 +75,7 @@ done
 
 # Log4j settings
 if [ -z "$EDIP_SFTPD_LOG4J_OPTS" ]; then
-  EDIP_SFTPD_LOG4J_OPTS="-Dlog4j.configuration=file:$base_dir/../conf/log4j.properties"
+  EDIP_SFTPD_LOG4J_OPTS="-Dlog4j.configuration=file:$EDIP_SFTP_SERVER_HOME/conf/log4j.properties -Dedip.sftpd.home=$EDIP_SFTP_SERVER_HOME"
 fi
 
 #EDIP_SFTPD_LOG4J_OPTS="-Dkafka.logs.dir=$LOG_DIR $KAFKA_LOG4J_OPTS"
@@ -129,8 +136,12 @@ done
 #fi
 
 # Launch mode
+
+
+echo "classpath:"$CLASSPATH
+
 if [ "x$DAEMON_MODE" = "xtrue" ]; then
-  nohup $JAVA $EDIP_SFTPD_HEAP_OPTS  $KAFKA_LOG4J_OPTS -cp $CLASSPATH $EDIP_SFTPD_LOG4J_OPTS $EDIP_SFTPD_OPTS "$@" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
+  nohup $JAVA $EDIP_SFTPD_HEAP_OPTS  -cp $CLASSPATH $EDIP_SFTPD_LOG4J_OPTS $EDIP_SFTPD_OPTS "$@" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
 else
-  exec $JAVA $EDIP_SFTPD_HEAP_OPTS  $KAFKA_LOG4J_OPTS -cp $CLASSPATH $EDIP_SFTPD_LOG4J_OPTS $EDIP_SFTPD_OPTS "$@"
+  exec $JAVA $EDIP_SFTPD_HEAP_OPTS   -cp $CLASSPATH $EDIP_SFTPD_LOG4J_OPTS $EDIP_SFTPD_OPTS "$@"
 fi

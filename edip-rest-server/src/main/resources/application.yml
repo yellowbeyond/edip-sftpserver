@@ -6,6 +6,6 @@ sftpd:
   serverName: sftp-server
   registerServerUrl: http://localhost:8081/info/register-server
   registerServer: true
-  classPath: ../lib/*
+  classPath: lib/*
   mainClass: com.cib.edip.edipsftpserver.sftpd.SftpServer
-  hostKey: ./keys/edip-sftpserver-host-rsa-key
+  hostKey: keys/edip-sftpserver-host-rsa-key

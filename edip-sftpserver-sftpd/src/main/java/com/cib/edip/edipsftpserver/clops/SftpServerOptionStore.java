@@ -70,7 +70,6 @@ public class SftpServerOptionStore extends OptionStore implements SftpServerOpti
     ogRegisterServer.setProperty("description", "if register information to the agent center");
     ogHostKey = new StringOption("HostKey", "(?:--HostKey)");
     addOption(ogHostKey);
-    ogHostKey.setProperty("default", "../keys/edip-sftpserver-host-rsa-key");
     ogHostKey.setProperty("aliases", "--HostKey");
     ogHostKey.setProperty("description", "if register information to the agent center");
     ogVer = new BooleanOption("Ver", "(?:--version)");
@@ -87,14 +86,14 @@ public class SftpServerOptionStore extends OptionStore implements SftpServerOpti
     addOptionGroup(ogAllOptions);
     
     //Setup groupings
-    ogoption.addOptionOrGroup(ogSecurityKey);
     ogoption.addOptionOrGroup(ogRootDir);
+    ogoption.addOptionOrGroup(ogSecurityKey);
     ogoption.addOptionOrGroup(ogRegisterServer);
     ogoption.addOptionOrGroup(ogHostKey);
-    ogoption.addOptionOrGroup(ogRegisterServerURL);
     ogoption.addOptionOrGroup(ogConfigFile);
-    ogoption.addOptionOrGroup(ogPort);
+    ogoption.addOptionOrGroup(ogRegisterServerURL);
     ogoption.addOptionOrGroup(ogServerName);
+    ogoption.addOptionOrGroup(ogPort);
     //AllOptions group
     ogAllOptions.addOptionOrGroup(ogPort);
     ogAllOptions.addOptionOrGroup(ogRootDir);

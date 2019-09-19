@@ -31,7 +31,6 @@ ARGS::
     :"if register information to the agent center"
   HostKey
     :{"--HostKey"} :{string}
-    :[default="../keys/edip-sftpserver-host-rsa-key"]
     :"if register information to the agent center"
   Ver
     :{"--version"}

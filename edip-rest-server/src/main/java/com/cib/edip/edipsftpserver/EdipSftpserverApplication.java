@@ -21,6 +21,9 @@ public class EdipSftpserverApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(EdipSftpserverApplication.class);
 
+    public static String SFTPD_SERVER_HOME_ENV="EDIP_SFTP_SERVER_HOME";
+    public static String SFTPD_HOME_ENV="EDIP_SFTPD_HOME";
+
     public static void main(String[] args) {
         SpringApplication.run(EdipSftpserverApplication.class, args);
         Config config=SftpServerContext.getConfig();
@@ -38,14 +41,19 @@ public class EdipSftpserverApplication {
 
 
 
-        //LOG.debug("======================"+System.getProperty("log4j.configuration"));
+        //LOG.debug("======================"+System.getenv("EDIP_SFTP_SERVER_HOME"));
 
 
         HashMap<String, String> env = new HashMap<String, String>();
 
+        if(Helpers.checkNotNull((System.getenv(EdipSftpserverApplication.SFTPD_SERVER_HOME_ENV)))) {
+
+            env.put(EdipSftpserverApplication.SFTPD_HOME_ENV,System.getenv(EdipSftpserverApplication.SFTPD_SERVER_HOME_ENV) );
+        }
+
         try {
             ProcessInfo pi = fss.startProcess(Class.forName(Helpers.checkNotNull(config.getMainClass())?config.getMainClass():"com.cib.edip.edipsftpserver.sftpd.SftpServer"), _args, env,
-                    Helpers.checkNotNull(config.getClassPath())?config.getClassPath():"./target/*:./target/lib/*", "server_test");
+                    Helpers.checkNotNull(config.getClassPath())?System.getenv(EdipSftpserverApplication.SFTPD_SERVER_HOME_ENV)+ java.io.File.separator+config.getClassPath():"./target/*:./target/lib/*", "server_test");
 			/*if(){
 
 			}

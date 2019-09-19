@@ -19,10 +19,16 @@
 #	echo "USAGE: $0 [-daemon] server.properties"
 #	exit 1
 #fi
-base_dir=$(dirname $0)
+base_dir=$(dirname $0)/..
+
+if [ "x$EDIP_SFTP_SERVER_HOME" = "x" ]; then
+  export  EDIP_SFTP_SERVER_HOME=$(cd $base_dir; pwd)
+
+  echo "EDIP_SFTP_SERVER_HOME:"$EDIP_SFTP_SERVER_HOME
+fi
 
 if [ "x$EDIP_SFTPD_LOG4J_OPTS" = "x" ]; then
-    export EDIP_SFTPD_LOG4J_OPTS="-Dlog4j.configuration=file:$base_dir/../conf/log4j.properties"
+    export EDIP_SFTPD_LOG4J_OPTS="-Dlog4j.configuration=file:$EDIP_SFTP_SERVER_HOME/conf/log4j.properties -Dedip.sftpd.home=$EDIP_SFTP_SERVER_HOME"
 fi
 
 if [ "x$EDIP_SFTPD_HEAP_OPTS" = "x" ]; then
@@ -35,16 +41,41 @@ MAIN_CLASS="com.cib.edip.edipsftpserver.EdipSftpserverApplication"
 
 CONF_FILE="application.yml"
 
-CONF_FILE_OPT=" --spring.config.location="$base_dir"/../conf/"$CONF_FILE
+CONF_FILE_OPT=" --spring.config.location=$EDIP_SFTP_SERVER_HOME/conf/"$CONF_FILE
 
-#COMMAND=$1
-#case $COMMAND in
-#  -daemon)
-#    EXTRA_ARGS="-daemon "$EXTRA_ARGS
-#    shift
-#    ;;
-#  *)
-#    ;;
-#esac
-#
-exec $base_dir/edip-sftpserver-class.sh $EXTRA_ARGS  $MAIN_CLASS $CONF_FILE_OPT $@
+
+
+while [ $# -gt 0 ]; do
+
+COMMAND=$1
+case $COMMAND in
+  -daemon)
+    EXTRA_ARGS_DAEMON="-daemon "
+    shift
+    ;;
+  -n)
+    SERVER_NAME=$2
+    EXTRA_ARGS="-name $SERVER_NAME -Dsftpd.name=$SERVER_NAME"
+
+    echo "SFTPD_SERVER start by name $SERVER_NAME"
+    SERVER_NAME="-n $SERVER_NAME "
+    shift 2
+    ;;
+  -f)
+    if [ -f "$2" ];then
+    echo "SFTPD_SERVER start using config file $2"
+    CONF_FILE_OPT=" --spring.config.location=$2"
+    else
+    echo "config file $2 isn't exist"
+    exit
+    fi
+
+    shift 2
+    ;;
+  *)
+    ;;
+esac
+done
+
+
+exec $EDIP_SFTP_SERVER_HOME/bin/edip-sftpserver-class.sh  $EXTRA_ARGS_DAEMON $EXTRA_ARGS  $MAIN_CLASS $SERVER_NAME $CONF_FILE_OPT "$@"
